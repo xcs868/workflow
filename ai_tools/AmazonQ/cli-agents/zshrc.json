@@ -1,0 +1,37 @@
+1. 打开配置文件（zsh 举例）：
+vi ~/.zshrc
+
+
+2.添加一下三个函数
+# 分支审查：qrb <branch>
+qrb() {
+local branch=${1:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null)}
+if [ -z "$branch" ]; then
+echo "❌ 获取分支失败"
+return 1
+fi
+q chat --no-interactive --trust-all-tools --agent code-review "branch $branch"
+}
+
+# 提交审查：qrc <commit>
+qrc() {
+if [ -z "$1" ]; then
+echo "❌ 用法: qrc <commit>"
+return 1
+fi
+q chat --no-interactive --trust-all-tools --agent code-review "commit $1"
+}
+
+# 本地审查：qrl（无需参数）
+qrl() {
+q chat --no-interactive --trust-all-tools --agent code-review "local"
+}
+
+3.保存并刷新配置：
+source ~/.zshrc
+
+
+qrb             # 自动使用当前分支
+qrb some-other  # 也可以手动指定
+qrc a1b2c3d     # 针对指定 commit 的改动内容进行审查。
+qrl             # 对尚未提交（已暂存）的本地变更进行审查。
